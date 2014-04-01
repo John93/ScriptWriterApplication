@@ -2,10 +2,10 @@ package BarbarianOutpost;
 
 import java.awt.Graphics;
 
-import org.powerbot.script.methods.MethodContext;
-import org.powerbot.script.util.Random;
-import org.powerbot.script.wrappers.GameObject;
-import org.powerbot.script.wrappers.Tile;
+import org.powerbot.script.Random;
+import org.powerbot.script.Tile;
+import org.powerbot.script.rt6.ClientContext;
+import org.powerbot.script.rt6.GameObject;
 
 import Agility.AgilityScript;
 import Agility.Constants;
@@ -16,13 +16,14 @@ public class ClimbNet extends Task {
 	private AgilityScript mainScript;
 	private GameObject net;
 	private Tile getInPositionTile;
-	private final int[] netBounds = {-8, 24, -736, -448, -124, 60};
-	public ClimbNet(MethodContext c, AgilityScript as) {
+	private final int[] netBounds = { -8, 24, -736, -448, -124, 60 };
+
+	public ClimbNet(ClientContext c, AgilityScript as) {
 		super(c);
 		this.mainScript = as;
 		getInPositionTile = new Tile(Random.nextInt(2539, 2541),
 				Random.nextInt(3547, 3549));
-		
+
 	}
 
 	@Override
@@ -32,7 +33,7 @@ public class ClimbNet extends Task {
 				mainScript.updateStatus("Climb net");
 				return true;
 			} else {
-				System.out.println("net not found");
+				mainScript.log.info("Net not found");
 			}
 		}
 		return false;
@@ -40,23 +41,23 @@ public class ClimbNet extends Task {
 
 	@Override
 	public void execute() {
-		if (ctx.players.local().getLocation().getX() <= 2538) {
-			if (!getInPositionTile.getMatrix(ctx).isInViewport()) {
+		if (ctx.players.local().tile().x() <= 2538) {
+			if (!getInPositionTile.matrix(ctx).inViewport()) {
 				ctx.camera.turnTo(getInPositionTile);
 			}
-			ctx.movement.stepTowards(getInPositionTile);
+			ctx.movement.step(getInPositionTile);
 
-		}
-		net = ctx.objects.nearest().poll();
-		net.setBounds(netBounds);
-		ctx.camera.turnTo(net);
-		if (net.isInViewport()) {
-			net.interact("Climb-over");
-		} else if (!net.isInViewport()) {
+		} else {
+			net = ctx.objects.nearest().poll();
+			net.bounds(netBounds);
 			ctx.camera.turnTo(net);
-			ctx.movement.stepTowards(net);
+			if (net.inViewport()) {
+				net.interact("Climb-over");
+			} else if (!net.inViewport()) {
+				ctx.camera.turnTo(net);
+				ctx.movement.step(net);
+			}
 		}
-
 	}
 
 	@Override

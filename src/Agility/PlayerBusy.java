@@ -2,17 +2,19 @@ package Agility;
 
 import java.awt.Graphics;
 
-import org.powerbot.script.methods.MethodContext;
+import org.powerbot.script.rt6.ClientContext;
 
 public class PlayerBusy extends Task {
+	private AgilityScript mainScript;
 
-	public PlayerBusy(MethodContext c, AgilityScript as) {
+	public PlayerBusy(ClientContext c, AgilityScript as) {
 		super(c);
+		this.mainScript = as;
 	}
 
 	@Override
 	public boolean activate() {
-		if (!ctx.players.local().isIdle() || ctx.players.local().isInCombat()) {
+		if (!ctx.players.local().idle() || ctx.players.local().inCombat()) {
 			return true;
 		} else {
 			return false;
@@ -22,7 +24,8 @@ public class PlayerBusy extends Task {
 
 	@Override
 	public void execute() {
-
+		mainScript.updateStatus("Player busy");
+		mainScript.log.info("Player busy");
 	}
 
 	@Override

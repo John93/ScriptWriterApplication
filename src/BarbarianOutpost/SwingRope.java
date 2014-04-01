@@ -2,9 +2,9 @@ package BarbarianOutpost;
 
 import java.awt.Graphics;
 
-import org.powerbot.script.methods.MethodContext;
-import org.powerbot.script.wrappers.GameObject;
-import org.powerbot.script.wrappers.Tile;
+import org.powerbot.script.Tile;
+import org.powerbot.script.rt6.ClientContext;
+import org.powerbot.script.rt6.GameObject;
 
 import Agility.AgilityScript;
 import Agility.Constants;
@@ -15,9 +15,10 @@ public class SwingRope extends Task {
 	private AgilityScript mainScript;
 	private Tile startTile;
 	private GameObject rope;
-	private final int[] ropeBounds = {-20, 40, -1680, -212, -44, 12};
-	private final int[] ladderBounds = {-28, 12, -852, -180, -92, 68};
-	public SwingRope(MethodContext c, AgilityScript as) {
+	private final int[] ropeBounds = { -20, 40, -1680, -212, -44, 12 };
+	private final int[] ladderBounds = { -32, -8, -824, -12, -156, 144 };
+
+	public SwingRope(ClientContext c, AgilityScript as) {
 		super(c);
 		this.mainScript = as;
 		startTile = new Tile(2552, 3554, 0);
@@ -36,32 +37,30 @@ public class SwingRope extends Task {
 	@Override
 	public void execute() {
 
-		if (!ctx.movement.isRunning() && ctx.movement.getEnergyLevel() > 15) {
-			ctx.movement.setRunning(true);
-		}
-
 		if (!ctx.objects.select().id(Constants.ropeSwingID).isEmpty()) {
 			mainScript.updateStatus("Swinging rope");
 			rope = ctx.objects.shuffle().first().poll();
-			rope.setBounds(ropeBounds);
+			rope.bounds(ropeBounds);
 			ctx.camera.turnTo(rope);
-			if (rope.isInViewport()) {
+			if (rope.inViewport()) {
 				rope.interact("Swing-on");
-			} else if (!rope.isInViewport()) {
+			} else if (!rope.inViewport()) {
 				ctx.camera.turnTo(rope);
-				ctx.movement.stepTowards(startTile);
+				ctx.movement.step(startTile);
 			}
 		} else if (!ctx.objects.select().id(Constants.ropeLadderID).isEmpty()) {
 			mainScript.updateStatus("Climbing up ladder");
 			rope = ctx.objects.nearest().poll();
-			rope.setBounds(ladderBounds);
+			rope.bounds(ladderBounds);
 			ctx.camera.turnTo(rope);
-			if (rope.isInViewport()) {
-				rope.interact("Climb-up");
-			} else if (!rope.isInViewport()) {
+			if (rope.inViewport()) {
+				rope.interact("Climb-up", "Ladder");
+			} else if (!rope.inViewport()) {
 				ctx.camera.turnTo(rope);
-				ctx.movement.stepTowards(rope);
+				ctx.movement.step(rope);
 			}
+		} else {
+			mainScript.log.info("Object not found");
 		}
 
 	}
@@ -69,7 +68,7 @@ public class SwingRope extends Task {
 	@Override
 	public void repaint(Graphics g) {
 		if (startTile != null && rope != null) {
-			startTile.getMatrix(ctx).draw(g);
+			startTile.matrix(ctx).draw(g);
 			rope.draw(g);
 		}
 	}

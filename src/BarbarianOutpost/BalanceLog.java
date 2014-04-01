@@ -2,8 +2,8 @@ package BarbarianOutpost;
 
 import java.awt.Graphics;
 
-import org.powerbot.script.methods.MethodContext;
-import org.powerbot.script.wrappers.GameObject;
+import org.powerbot.script.rt6.ClientContext;
+import org.powerbot.script.rt6.GameObject;
 
 import Agility.AgilityScript;
 import Agility.Constants;
@@ -13,10 +13,9 @@ public class BalanceLog extends Task {
 
 	private AgilityScript mainScript;
 	private GameObject log;
-	private final int[] logBounds = {-4, 76, 140, 192, -76, -4};
+	private final int[] logBounds = { -4, 76, 140, 192, -76, -4 };
 
-
-	public BalanceLog(MethodContext c, AgilityScript as) {
+	public BalanceLog(ClientContext c, AgilityScript as) {
 		super(c);
 		this.mainScript = as;
 	}
@@ -28,7 +27,7 @@ public class BalanceLog extends Task {
 				mainScript.updateStatus("Balancing log");
 				return true;
 			} else {
-				System.out.println("log not found");
+				mainScript.log.info("Log not found");
 			}
 		}
 		return false;
@@ -37,13 +36,13 @@ public class BalanceLog extends Task {
 	@Override
 	public void execute() {
 		log = ctx.objects.nearest().poll();
-		log.setBounds(logBounds);
+		log.bounds(logBounds);
 		ctx.camera.turnTo(log);
-		if (log.isInViewport()) {
+		if (log.inViewport()) {
 			log.interact("Walk-across");
-		} else if (!log.isInViewport()) {
+		} else if (!log.inViewport()) {
 			ctx.camera.turnTo(log);
-			ctx.movement.stepTowards(log);
+			ctx.movement.step(log);
 		}
 
 	}

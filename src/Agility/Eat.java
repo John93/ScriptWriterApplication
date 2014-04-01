@@ -2,26 +2,24 @@ package Agility;
 
 import java.awt.Graphics;
 
-import org.powerbot.script.methods.MethodContext;
-import org.powerbot.script.methods.Hud.Window;
-import org.powerbot.script.util.Random;
-import org.powerbot.script.wrappers.Item;
-
-import Agility.AgilityScript;
-import Agility.Task;
+import org.powerbot.script.Random;
+import org.powerbot.script.rt6.ClientContext;
+import org.powerbot.script.rt6.Hud.Window;
+import org.powerbot.script.rt6.Item;
 
 public class Eat extends Task {
 
 	private AgilityScript mainScript;
-	private int eatAtPercent = 50;
-	public Eat(MethodContext c, AgilityScript as) {
+	private int eatAtPercent = 750;
+
+	public Eat(ClientContext c, AgilityScript as) {
 		super(c);
 		this.mainScript = as;
 	}
 
 	@Override
 	public boolean activate() {
-		if ((100 * ctx.combatBar.getHealth() / ctx.combatBar.getMaximumHealth()) < eatAtPercent) {
+		if ((100 * ctx.combatBar.health() / ctx.combatBar.maximumHealth()) < eatAtPercent) {
 			return true;
 		} else {
 			return false;
@@ -30,17 +28,24 @@ public class Eat extends Task {
 
 	@Override
 	public void execute() {
-		if (!ctx.backpack.select().id(Constants.foodIDs).isEmpty()) {
-			if (ctx.hud.open(Window.BACKPACK) && ctx.hud.view(Window.BACKPACK)) {
+		if (!ctx.backpack.select().id(Constants.foodID).isEmpty()) {
+			
+			if (ctx.hud.open(Window.BACKPACK)) {
+
+				mainScript.updateStatus("Eating");
 				Item food = ctx.backpack.shuffle().first().poll();
+
 				food.interact("Eat");
-				eatAtPercent = Random.nextInt(35, 70);
-			}else{
-				System.out.println("Opening backpack");
+
+				eatAtPercent = Random.nextInt(60, 75);
+			} else {
+				mainScript.log.info("Opening backpack");
+				mainScript.updateStatus("Opening backpack");
 			}
 		} else {
-			mainScript.getController().stop();
-			System.out.println("Out of food, stopping script!");
+			ctx.controller.stop();
+			mainScript.updateStatus("Out of food, stopping script!");
+			mainScript.log.info("Out of food, stopping script!");
 		}
 
 	}

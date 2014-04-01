@@ -1,9 +1,11 @@
 package BarbarianOutpost;
 
 import java.awt.Graphics;
-import org.powerbot.script.lang.Filter;
-import org.powerbot.script.methods.MethodContext;
-import org.powerbot.script.wrappers.GameObject;
+
+import org.powerbot.script.Filter;
+import org.powerbot.script.rt6.ClientContext;
+import org.powerbot.script.rt6.GameObject;
+
 import Agility.AgilityScript;
 import Agility.Constants;
 import Agility.Task;
@@ -12,8 +14,9 @@ public class ClimbWall extends Task {
 
 	private AgilityScript mainScript;
 	private GameObject wall;
-	private final int[] wallBounds = {168, 208, -300, -80, -156, 180};
-	public ClimbWall(MethodContext c, AgilityScript as) {
+	private final int[] wallBounds = { 168, 208, -300, -80, -156, 180 };
+
+	public ClimbWall(ClientContext c, AgilityScript as) {
 		super(c);
 		this.mainScript = as;
 	}
@@ -36,23 +39,25 @@ public class ClimbWall extends Task {
 
 			wall = ctx.objects.select(new Filter<GameObject>() {
 
+				@Override
 				public boolean accept(GameObject g) {
-					if (g.getLocation().getY() == 3553
-							&& g.getLocation().getX() == 2542) {
+					if (g.tile().y() == 3553 && g.tile().x() == 2542) {
 						return true;
 					} else {
 						return false;
 					}
 				}
 			}).first().poll();
-			wall.setBounds(wallBounds);
+			wall.bounds(wallBounds);
 			ctx.camera.turnTo(wall);
-			if (wall.isInViewport()) {
+			if (wall.inViewport()) {
 				wall.interact("Climb-over");
-			} else if (!wall.isInViewport()) {
+			} else if (!wall.inViewport()) {
 				ctx.camera.turnTo(wall);
-				ctx.movement.stepTowards(wall);
+				ctx.movement.step(wall);
 			}
+		} else {
+			mainScript.log.info("Wall not found");
 		}
 
 	}
