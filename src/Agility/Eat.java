@@ -10,7 +10,7 @@ import org.powerbot.script.rt6.Item;
 public class Eat extends Task {
 
 	private AgilityScript mainScript;
-	private int eatAtPercent = 750;
+	private int eatAtPercent = 50;
 
 	public Eat(ClientContext c, AgilityScript as) {
 		super(c);
@@ -37,7 +37,7 @@ public class Eat extends Task {
 
 				food.interact("Eat");
 
-				eatAtPercent = Random.nextInt(60, 75);
+				eatAtPercent = Random.nextInt(30, 60);
 			} else {
 				mainScript.log.info("Opening backpack");
 				mainScript.updateStatus("Opening backpack");
